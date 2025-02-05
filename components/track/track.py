@@ -42,7 +42,8 @@ class TrackCard(QFrame):
         title_label.setStyleSheet("font-weight: bold; font-size: 16px; border: none")
         author_label.setStyleSheet("font-size: 12px; border: none")
         close_button.setStyleSheet("font-weight: bold; font-size: 16px; margin-right: 10px")
-        self.setStyleSheet("background-color: white; border-radius: 20px;")
+
+        self.setStyleSheet("background-color: white; border-radius: 20px; ")
 
         ### ЛОГИКА
         close_button.clicked.connect(self.handle_delete_track)
