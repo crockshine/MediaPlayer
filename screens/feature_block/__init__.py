@@ -1,1 +1,1 @@
-from .feature_block import FeatureBlock
+from .feature_block import FeatureWidget
