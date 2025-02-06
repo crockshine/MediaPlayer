@@ -14,18 +14,16 @@ class RootWindow(QWidget):
         self.main_layout = QHBoxLayout()
 
         ### ВЕРСТКА
-        self.feature_widget = FeatureWidget()  # правый блок
         self._playlist_screen = PlayList()      # левый блок
+        self.feature_widget = FeatureWidget()  # правый блок
 
         # Рендерим виджеты
         self.render_widgets()
 
         ### СТИЛИ
-        self._playlist_screen.setMinimumWidth(250)
-        self.feature_widget.setMinimumWidth(250)
-        self._playlist_screen.setMaximumWidth(500)
-        self.feature_widget.setMaximumWidth(500)
-
+        self._playlist_screen.setFixedWidth(self.width() // 2)
+        self.feature_widget.setFixedWidth(self.width() // 2)
+        self.main_layout.setAlignment(Qt.AlignCenter)
 
         ### ОБРАБОТЧИКИ СОБЫТИЙ
         self.feature_widget.emitTogglePlaylist.connect(self.handle_toggle_playlist)
@@ -42,10 +40,6 @@ class RootWindow(QWidget):
 
         if self.is_visible_track_list:
             self.main_layout.addWidget(self._playlist_screen)
-            self.main_layout.setAlignment(Qt.AlignCenter)# левый блок
-        else:
-            self.main_layout.setAlignment(Qt.AlignLeft)
-
 
         self.main_layout.addWidget(self.feature_widget)  # правый блок всегда добавляем
 
