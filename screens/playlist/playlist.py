@@ -23,7 +23,6 @@ class PlayList(QWidget):
 
         ## СТИЛИ
         play_list_layout.setAlignment(Qt.AlignTop)
-
         ## ЛОГИКА
         self._add_track_block.emitAddNewTrack.connect(self.handle_add_new_track)
         self._track_list_layout.removeTrack.connect(self.handle_remove_track)
