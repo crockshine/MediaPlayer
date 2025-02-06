@@ -8,7 +8,6 @@ class TrackList(QVBoxLayout):
 
     def __init__(self, card_data):
         super().__init__()
-
         self.tracks = card_data
         self.render_list()
 
