@@ -8,7 +8,7 @@ from components.main_image import MainImage
 
 
 class FeatureLayout(QVBoxLayout):
-    def __init__(self, is_full_screen: bool):
+    def __init__(self, is_full_screen: bool, current_track: dict):
         super().__init__()
         ### КОМПОНЕНТЫ
         top_toggle_playlist_btn = QPushButton()
@@ -17,7 +17,7 @@ class FeatureLayout(QVBoxLayout):
         main_image = MainImage()
         center_info_layout = QHBoxLayout()
 
-        about_track = AboutTrackLayout('Born To Die', 'Lana Del Ray')
+        about_track = AboutTrackLayout(current_track["title"], current_track["author"])
         feature_btns = FeatureButtonsLayout()
 
 
@@ -67,9 +67,9 @@ class FeatureLayout(QVBoxLayout):
             parent_widget.to_call_toggle()
 
 
-def feature_widget(is_full_screen: bool):  # обертка лэйаута в виджет для стилизации
+def feature_widget(is_full_screen: bool, current_track:dict):  # обертка лэйаута в виджет для стилизации
     w = QWidget()
-    layout = FeatureLayout(is_full_screen)
+    layout = FeatureLayout(is_full_screen, current_track)
     w.setStyleSheet('background-color: rgba(0,0,0, 0.2)')
     w.setLayout(layout)
     return w

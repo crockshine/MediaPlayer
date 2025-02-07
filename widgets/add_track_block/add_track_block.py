@@ -9,7 +9,6 @@ class AddTrackBlock(QHBoxLayout):
 
     def __init__(self):
         super().__init__()
-        self.i = 0
 
         ## РАЗМЕТКА
         button = QPushButton('Добавить')
