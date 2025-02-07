@@ -1,9 +1,11 @@
+from random import random, randint
+
 from PySide6.QtWidgets import QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt, Signal
 
 
 class AddTrackBlock(QHBoxLayout):
-    emitAddNewTrack = Signal(int, str, str)
+    emitAddNewTrack = Signal(dict)
 
     def __init__(self):
         super().__init__()
@@ -12,7 +14,7 @@ class AddTrackBlock(QHBoxLayout):
         ## РАЗМЕТКА
         button = QPushButton('Добавить')
         button.setFixedSize(200, 50)
-        button.setStyleSheet('background-color: black; border-radius: 20px; color: white; font-size: 16px; font-weight: bold')
+        button.setStyleSheet('background-color: black; border-radius: 10px; color: white; font-size: 16px; font-weight: bold')
         self.addWidget(button)
 
         ##  СТИЛИ
@@ -22,5 +24,6 @@ class AddTrackBlock(QHBoxLayout):
         button.clicked.connect(self.add_track)
 
     def add_track(self):
-        self.i += 1
-        self.emitAddNewTrack.emit(self.i, f'Новый трек{self.i}', 'Новый автор')
+        rand = randint(1, 129929)
+        new_track = {"id": rand, "title": f'Новый трек {rand}', "author": 'Новый автор'}
+        self.emitAddNewTrack.emit(new_track)

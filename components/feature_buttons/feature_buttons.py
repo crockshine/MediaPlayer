@@ -30,7 +30,6 @@ class FeatureButtonsLayout(QHBoxLayout):
         for btn in btns:
             self.addWidget(btn)
 
-
         ### СТИЛИ
         large_btns = {prev_btn, pause_btn, next_btn}
 
@@ -42,6 +41,7 @@ class FeatureButtonsLayout(QHBoxLayout):
                 btn.setIconSize(QSize(32,32))
             else:
                 btn.setIconSize(QSize(22,22))
+
 
         self.setSpacing(12)
         self.setAlignment(Qt.AlignCenter)

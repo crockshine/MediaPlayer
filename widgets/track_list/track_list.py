@@ -12,11 +12,6 @@ class TrackList(QVBoxLayout):
         self.render_list()
 
     def render_list(self):
-        while self.count():
-            item = self.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-
         # Создаём карточки
         for track in self.tracks:
             _track_card = TrackCard(track["id"], track["title"], track["author"])
@@ -24,6 +19,3 @@ class TrackList(QVBoxLayout):
 
             _track_card.emitDelete.connect(self.removeTrack.emit)
 
-    def update_list(self, new_tracks):
-        self.tracks = new_tracks
-        self.render_list()
