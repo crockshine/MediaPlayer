@@ -3,6 +3,7 @@ from PySide6.QtGui import QIcon, QTransform, QPixmap
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
 from components.about_track import AboutTrackLayout
+from components.feature_buttons import FeatureButtonsLayout
 from components.main_image import MainImage
 
 
@@ -17,6 +18,8 @@ class FeatureLayout(QVBoxLayout):
         center_info_layout = QHBoxLayout()
 
         about_track = AboutTrackLayout('Born To Die', 'Lana Del Ray')
+        feature_btns = FeatureButtonsLayout()
+
 
         ## РАЗМЕТКА
         top_btn_layout.addWidget(top_toggle_playlist_btn, stretch=1)
@@ -27,6 +30,7 @@ class FeatureLayout(QVBoxLayout):
 
         self.addLayout(center_info_layout)
         self.addLayout(about_track)
+        self.addLayout(feature_btns)
 
         self.addStretch()
 
