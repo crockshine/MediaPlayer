@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout
 from screens.feature_screen import feature_widget
 from screens.playlist_screen import PlayList
-
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 class RootWindow(QWidget):
     def __init__(self):
@@ -10,10 +10,14 @@ class RootWindow(QWidget):
         self.setWindowTitle('Музыкальный проигрыватель')
         self.resize(1000, 700)
 
+        self.player = QMediaPlayer()
+        self.audio_output = QAudioOutput(self)
+        self.player.setAudioOutput(self.audio_output)
+
         ### ГЛОБАЛЬНЫЕ СОСТОЯНИЯ
         self.is_visible_track_list = True
         self.card_data = []
-        self.current_track = {"id": 0, "title": '', "author": ''}
+        self.current_track = {"id": 0, "title": '', "author": '', "source": ''}
 
         self.main_layout = QHBoxLayout()
         self.feature_screen = None # правый блок
@@ -30,7 +34,11 @@ class RootWindow(QWidget):
 
     def handle_choose_current_track(self, new_current_track):
         self.current_track = new_current_track
+        self.player.setSource(self.current_track["source"])
+        self.player.play()
         self.render_widgets()
+
+
 
     #добавить трек
     def handle_add_new_track(self, track):
@@ -50,7 +58,6 @@ class RootWindow(QWidget):
     def handle_toggle_playlist(self):
         self.is_visible_track_list = not self.is_visible_track_list
         self.render_widgets()
-
 
     def render_widgets(self):
         while self.main_layout.count():

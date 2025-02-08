@@ -33,7 +33,7 @@ class AddTrackBlock(QHBoxLayout):
             if file_extension == '.mp3':
                 mp3_track_data = read_mp3(file_path)
                 rand = randint(1, 129929)
-                new_track = {"id": rand, "title": mp3_track_data["title"], "author": mp3_track_data["author"]}
+                new_track = {"id": rand, "title": mp3_track_data["title"], "author": mp3_track_data["author"], "source": file_path}
                 self.emitAddNewTrack.emit(new_track)
 
         
