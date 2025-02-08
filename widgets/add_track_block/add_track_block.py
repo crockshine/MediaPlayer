@@ -1,7 +1,9 @@
 from random import random, randint
 
-from PySide6.QtWidgets import QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QFileDialog
 from PySide6.QtCore import Qt, Signal
+import os
+from utils import read_mp3
 
 
 class AddTrackBlock(QHBoxLayout):
@@ -23,6 +25,15 @@ class AddTrackBlock(QHBoxLayout):
         button.clicked.connect(self.add_track)
 
     def add_track(self):
-        rand = randint(1, 129929)
-        new_track = {"id": rand, "title": f'Новый трек {rand}', "author": 'Новый автор'}
-        self.emitAddNewTrack.emit(new_track)
+        file_path, _ = QFileDialog.getOpenFileName(
+            None, "Выберите аудиофайл", "", "Audio Files (*.mp3 *.wav *.flac)"
+        )
+        _, file_extension = os.path.splitext(file_path)
+        if file_path:
+            if file_extension == '.mp3':
+                mp3_track_data = read_mp3(file_path)
+                rand = randint(1, 129929)
+                new_track = {"id": rand, "title": mp3_track_data["title"], "author": mp3_track_data["author"]}
+                self.emitAddNewTrack.emit(new_track)
+
+        
