@@ -16,8 +16,11 @@ class RootWindow(QWidget):
 
         ### ГЛОБАЛЬНЫЕ СОСТОЯНИЯ
         self.is_visible_track_list = True
+        self.is_playing = False
         self.card_data = []
-        self.current_track = {"id": 0, "title": '', "author": '', "source": ''}
+
+        self.default_track = {"id": -1, "title": '', "author": '', "source": ''}
+        self.current_track = self.default_track
 
         self.main_layout = QHBoxLayout()
         self.feature_screen = None # правый блок
@@ -32,12 +35,43 @@ class RootWindow(QWidget):
         # Устанавливаем основной layout
         self.setLayout(self.main_layout)
 
+    #изменить текущий трек
     def handle_choose_current_track(self, new_current_track):
-        self.current_track = new_current_track
-        self.player.setSource(self.current_track["source"])
-        self.player.play()
+        if new_current_track == self.current_track: #если трек тот-же - ставим на паузу, иначе изменяем проигрывание
+            if self.player.isPlaying():
+                self.player.pause()
+                self.is_playing = False
+                self.render_widgets()
+            else:
+                self.player.play()
+                self.is_playing = True
+                self.render_widgets()
+        else:
+            self.current_track = new_current_track
+            self.player.setSource(self.current_track["source"])
+            self.player.play()
+            self.is_playing = True
+            self.render_widgets()
+
+    #воспроизвести
+    def handle_play(self):
+        # защита от дурочка
+        if len(self.card_data) > 0:
+            #ничего не играет - ставим первый
+            if self.current_track == self.default_track:
+                self.handle_choose_current_track(self.card_data[0])
+            else:
+                self.player.play()
+                self.is_playing = True
+                self.render_widgets()
+
+    #пауза
+    def handle_pause(self):
+        self.player.pause()
+        self.is_playing = False
         self.render_widgets()
 
+    def handle_next(self):
 
 
     #добавить трек
@@ -47,6 +81,13 @@ class RootWindow(QWidget):
 
     #удалить трек
     def handle_remove_track(self, id_of_track):
+        #очистка плеера, если удален текущий
+        if id_of_track == self.current_track["id"]:
+            self.player.pause()
+            self.is_playing = False
+            self.current_track = self.default_track
+
+        #интерфейс
         new_data = []
         for track in self.card_data:
             if track["id"] != id_of_track:
@@ -59,6 +100,7 @@ class RootWindow(QWidget):
         self.is_visible_track_list = not self.is_visible_track_list
         self.render_widgets()
 
+    #рендер / ререндер
     def render_widgets(self):
         while self.main_layout.count():
             item = self.main_layout.takeAt(0)
@@ -66,7 +108,7 @@ class RootWindow(QWidget):
                 item.widget().setParent(None)
 
         self._playlist_screen = PlayList(self.card_data, self.current_track)
-        self.feature_screen = feature_widget(not self.is_visible_track_list, self.current_track)  # правый блок всегда открыт
+        self.feature_screen = feature_widget(not self.is_visible_track_list, self.current_track, self.is_playing)  # правый блок всегда открыт
 
         # нужно ли показывать левый блок
         if self.is_visible_track_list:
@@ -74,6 +116,9 @@ class RootWindow(QWidget):
 
         ### ОБРАБОТЧИКИ СОБЫТИЙ
         self.feature_screen.to_call_toggle = self.handle_toggle_playlist  # явно указываем метод to_call_toggle
+        self.feature_screen.to_call_play = self.handle_play  # явно указываем метод to_call_play
+        self.feature_screen.to_call_pause = self.handle_pause  # явно указываем метод to_call_pause
+
         self._playlist_screen.emitAddNewTrack.connect(self.handle_add_new_track)
         self._playlist_screen.emitDeleteTrack.connect(self.handle_remove_track)
         self._playlist_screen.emitChooseCurrentTrack.connect(self.handle_choose_current_track)

@@ -1,10 +1,13 @@
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QPushButton
 
 
 class FeatureButtonsLayout(QHBoxLayout):
-    def __init__(self):
+    emitPause = Signal()
+    emitPlay = Signal()
+
+    def __init__(self, is_playing:bool):
         super().__init__()
         shuffle_btn = QPushButton()
         repeat_btn = QPushButton()
@@ -17,7 +20,6 @@ class FeatureButtonsLayout(QHBoxLayout):
         shuffle_btn.setIcon(QIcon('assets/shuffle.svg'))
         repeat_btn.setIcon(QIcon('assets/repeat.svg'))
         prev_btn.setIcon(QIcon('assets/rewind.svg'))
-        pause_btn.setIcon(QIcon('assets/pause.svg'))
         next_btn.setIcon(QIcon('assets/fast-forward.svg'))
         equalaizer_btn.setIcon(QIcon('assets/waves.svg'))
         volume_btn.setIcon(QIcon('assets/volume-2.svg'))
@@ -42,9 +44,18 @@ class FeatureButtonsLayout(QHBoxLayout):
             else:
                 btn.setIconSize(QSize(22,22))
 
-
         self.setSpacing(12)
         self.setAlignment(Qt.AlignCenter)
 
+        if is_playing:
+            pause_btn.setIcon(QIcon('assets/pause.svg'))
+        else:
+            pause_btn.setIcon(QIcon('assets/play.svg'))
+
+
         ### ЛОГИКА
+        if is_playing:
+            pause_btn.clicked.connect(self.emitPause.emit)
+        else:
+            pause_btn.clicked.connect(self.emitPlay.emit)
 

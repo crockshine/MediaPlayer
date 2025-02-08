@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon, QTransform, QPixmap
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
@@ -8,7 +8,7 @@ from components.main_image import MainImage
 
 
 class FeatureLayout(QVBoxLayout):
-    def __init__(self, is_full_screen: bool, current_track: dict):
+    def __init__(self, is_full_screen: bool, current_track: dict, is_playing: bool):
         super().__init__()
         ### КОМПОНЕНТЫ
         top_toggle_playlist_btn = QPushButton()
@@ -18,7 +18,7 @@ class FeatureLayout(QVBoxLayout):
         center_info_layout = QHBoxLayout()
 
         about_track = AboutTrackLayout(current_track["title"], current_track["author"])
-        feature_btns = FeatureButtonsLayout()
+        feature_btns = FeatureButtonsLayout(is_playing)
 
 
         ## РАЗМЕТКА
@@ -60,16 +60,30 @@ class FeatureLayout(QVBoxLayout):
 
         ## ЛОГИКА
         top_toggle_playlist_btn.clicked.connect(self.notify_parent)
+        feature_btns.emitPlay.connect(self.handle_play)
+        feature_btns.emitPause.connect(self.handle_pause)
+
 
     def notify_parent(self):
         parent_widget = self.parentWidget()  # здесь будет w из feature_widget, который встраивается в root
         if parent_widget and hasattr(parent_widget, 'to_call_toggle'):  # явно указанный метод в root
             parent_widget.to_call_toggle()
 
+    def handle_play(self):
+        parent_widget = self.parentWidget()
+        if parent_widget and hasattr(parent_widget, 'to_call_play'):  # явно указанный метод в root
+            parent_widget.to_call_play()
 
-def feature_widget(is_full_screen: bool, current_track:dict):  # обертка лэйаута в виджет для стилизации
+    def handle_pause(self):
+        parent_widget = self.parentWidget()
+        if parent_widget and hasattr(parent_widget, 'to_call_pause'):  # явно указанный метод в root
+            parent_widget.to_call_pause()
+
+
+
+def feature_widget(is_full_screen: bool, current_track:dict, is_playing: bool):  # обертка лэйаута в виджет для стилизации
     w = QWidget()
-    layout = FeatureLayout(is_full_screen, current_track)
+    layout = FeatureLayout(is_full_screen, current_track, is_playing)
     w.setStyleSheet('background-color: rgba(0,0,0, 0.2)')
     w.setLayout(layout)
     return w
