@@ -13,12 +13,8 @@ def read_mp3(fp):
             return {"title": file_name.split('.')[0], "author": 'Автор не указан'}
 
         tag_data = f.read(128)
-        print(tag_data)
 
     title = tag_data[3:33].decode("latin-1").strip("\x00")
     artist = tag_data[33:63].decode("latin-1").strip("\x00")
-
-    if title == '': title = 'Название не указано'
-    if artist == '': artist = 'Автор не указан'
 
     return {"title": title, "author": artist}

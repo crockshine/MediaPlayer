@@ -71,7 +71,6 @@ class RootWindow(QWidget):
         self.is_playing = False
         self.render_widgets()
 
-    def handle_next(self):
 
 
     #добавить трек
