@@ -2,8 +2,15 @@ from utils.mp3 import is_id3v1
 from utils.mp3 import is_id3v2
 import os
 
+
 def read_mp3(fp):
     with open(fp, "rb") as f:
+        tag = f.read()
+
+        print(tag[0:128].decode("latin-1"))
+        print('asdsadas')
+        print(tag[-128:].decode("latin-1"))
+
         if is_id3v1(f):
             f.seek(-128, 2)
         elif is_id3v2(f):

@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (AudioPlayer)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (MusicPlayer)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (AudioPlayer)" project-jdk-type="Python SDK" />
 </project>

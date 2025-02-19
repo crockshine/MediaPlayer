@@ -4,6 +4,7 @@ from screens.feature_screen import feature_widget
 from screens.playlist_screen import PlayList
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
+
 class RootWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -23,7 +24,7 @@ class RootWindow(QWidget):
         self.current_track = self.default_track
 
         self.main_layout = QHBoxLayout()
-        self.feature_screen = None # правый блок
+        self.feature_screen = None  # правый блок
         self._playlist_screen = None
 
         ### ВЕРСТКА
@@ -37,7 +38,7 @@ class RootWindow(QWidget):
 
     #изменить текущий трек
     def handle_choose_current_track(self, new_current_track):
-        if new_current_track == self.current_track: #если трек тот-же - ставим на паузу, иначе изменяем проигрывание
+        if new_current_track == self.current_track:  #если трек тот-же - ставим на паузу, иначе изменяем проигрывание
             if self.player.isPlaying():
                 self.player.pause()
                 self.is_playing = False
@@ -70,8 +71,6 @@ class RootWindow(QWidget):
         self.player.pause()
         self.is_playing = False
         self.render_widgets()
-
-
 
     #добавить трек
     def handle_add_new_track(self, track):
@@ -107,7 +106,8 @@ class RootWindow(QWidget):
                 item.widget().setParent(None)
 
         self._playlist_screen = PlayList(self.card_data, self.current_track)
-        self.feature_screen = feature_widget(not self.is_visible_track_list, self.current_track, self.is_playing)  # правый блок всегда открыт
+        self.feature_screen = feature_widget(not self.is_visible_track_list, self.current_track,
+                                             self.is_playing)  # правый блок всегда открыт
 
         # нужно ли показывать левый блок
         if self.is_visible_track_list:
