@@ -6,9 +6,7 @@ import io  # Для работы с байтовыми данными как с 
 
 def read_mp3(fp):
     # Пример тестовых байтов (ID3v2.2 без флагов)
-    test_bytes =   b"ID3\x04\x00\x00\x00\x00\x00\x50TIT2\x00\x00\x00\x06\x00\x00\x00\x00TitleTPE1\x00\x00\x00\x06\x00\x00\x00\x00ArtistTALB\x00\x00\x00\x06\x00\x00\x00\x00Album"
-
-    # Используем io.BytesIO для эмуляции файлового объекта
+    test_bytes =  b"ID3" + b"\x04\x00" + b"\x40" + b"\x00\x00\x00\x0F" +b"TIT2" + b"\x00\x00\x00\x05" + b"\x00\x00" + b"Title" +b"FOOTER1234"
     with io.BytesIO(test_bytes) as f:
         print(f.getvalue())
 
@@ -20,7 +18,7 @@ def read_mp3(fp):
             artist = tag_data[33:63].decode("latin-1").strip("\x00")
 
             return {"title": title, "author": artist}
-        elif is_id3v2(f):  # вторая версия тега
+        elif is_id3v2(f):
             def find_size(size_bytes):
                 res = 0
                 for b in size_bytes:
@@ -28,48 +26,52 @@ def read_mp3(fp):
                 return res
 
             def is_frame_id(data):
-                return all(65 <= byte <= 90 or 48 <= byte <= 57 for byte in data)
+                res = False
+                for byte in data:
+                    if 65 <= byte <= 90 or 48 <= byte <= 57:
+                        return True
+                    else:
+                        res = False
+                return res
 
             f.seek(0, 0)
 
             tag_head_bytes = f.read(10)
             version_byte = tag_head_bytes[3]
-            print(version_byte)
             flag_byte = tag_head_bytes[5]
             flags = {
                 "Unsync": bool(flag_byte & 0b10000000 != 0),
-                "Extended header": bool(flag_byte & 0b01000000 != 0),
-                "Experimental tag": bool(flag_byte & 0b00100000 != 0),
+                "Extended header": bool(False)
+                # расширеный заголвоок далее определяется по 4 байтам после основного заголовка
             }
             frame_size = find_size(tag_head_bytes[6:10])
             print(frame_size)
             print('flags ', flags)
             frames = None
 
-
-            if flags["Extended header"]: #v3, v4
-                f.seek(10)
-                extended_bytes = f.read(4)
-                print('extended_bytes', extended_bytes)
+            # проверка на расширеный заголовок. 3 версия - bigint, 4 - syncsafe
+            f.seek(10)
+            extended_bytes = f.read(4)
+            print(extended_bytes)
+            if not is_frame_id(extended_bytes):
+                flags["Extended header"] = True
 
                 if version_byte == 3:
                     extended_size = int.from_bytes(extended_bytes, 'big')
-                    f.seek(10 + extended_size)
+                    f.seek(10 + 4 + extended_size)
                     frames = f.read(frame_size - extended_size)
                     print('extended_size v3', extended_size)
-
-                elif version_byte == 4:
-                    print('is frame id - ',is_frame_id(extended_bytes))
-                    if not is_frame_id(extended_bytes):
-                        extended_size = find_size(extended_bytes)
-                        f.seek(10 + extended_size)
-                        frames = f.read(frame_size - extended_size)
-                        print('extended_size v4', extended_size)
-            else: # v2
+                if version_byte == 4:
+                    extended_size = find_size(extended_bytes)
+                    f.seek(10 + 4 + extended_size)
+                    frames = f.read(frame_size - extended_size)
+                    print('extended_size v4', extended_size)
+            else:
                 f.seek(10)
-                frames = f.read(frame_size+1)
+                frames = f.read(frame_size)
 
             if flags["Unsync"]:
+                print('АНСИХ')
                 new_data = bytearray()
                 i = 0
                 while i < len(frames) - 1:
@@ -79,10 +81,12 @@ def read_mp3(fp):
                 new_data.append(frames[-1])  # Добавляем последний байт
                 frames = bytes(new_data)
             else:
-                f.seek(10)
-                frames = f.read(frame_size+1)
+                if not flags["Extended header"]:
+                    f.seek(10)
+                    frames = f.read(frame_size)
 
-            print('framedata ',frames)
+            print(frames)
+
         else:
             file_name = os.path.basename(fp)
             return {"title": file_name.split('.')[0], "author": 'Автор не указан'}
