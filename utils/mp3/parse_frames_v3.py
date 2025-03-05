@@ -4,7 +4,7 @@ from utils.mp3.decoding_info import decoding_info
 def parse_frames_v3(frames):
     title_index = frames.find(b"TIT2")
     author_index = frames.find(b"TPE1")
-
+    print(author_index)
     title = None
     author = None
 
@@ -27,6 +27,7 @@ def parse_frames_v3(frames):
 
     if author_index != -1:
         author_size = int.from_bytes(frames[author_index + 4: author_index + 8], 'big')
+        print(author_size, 'a size')
         author_bytes = frames[
                        author_index + 10:
                        author_index + 10 + author_size

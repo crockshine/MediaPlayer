@@ -1,5 +1,6 @@
 from .get_syncsafe_size import get_syncsafe_size
 
+
 def get_frames_from_id3v2(fb):
     def is_frame_id(data):
         res = False
@@ -21,23 +22,22 @@ def get_frames_from_id3v2(fb):
         # расширеный заголвоок далее определяется по 4 байтам после основного заголовка
     }
     frame_size = get_syncsafe_size(tag_head_bytes[6:10])
-    print('flags ', flags)
     frames = None
 
     # проверка на расширеный заголовок. 3 версия - bigint, 4 - syncsafe
     fb.seek(10)
     extended_bytes = fb.read(4)
-    if not is_frame_id(extended_bytes):
+    if not is_frame_id(extended_bytes): #наткнулись на расширенный заголовок
         flags["Extended header"] = True
+        extended_size = 0
 
         if version_byte == 3:
             extended_size = int.from_bytes(extended_bytes, 'big')
-            fb.seek(10 + 4 + extended_size)
-            frames = fb.read(frame_size - extended_size)
         if version_byte == 4:
             extended_size = get_syncsafe_size(extended_bytes)
-            fb.seek(10 + 4 + extended_size)
-            frames = fb.read(frame_size - extended_size)
+
+        fb.seek(10 + 4 + extended_size)
+        frames = fb.read(frame_size - extended_size)
     else:
         fb.seek(10)
         frames = fb.read(frame_size)
