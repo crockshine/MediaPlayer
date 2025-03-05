@@ -4,7 +4,6 @@ import os
 import io  # Для работы с байтовыми данными как с файлом
 
 
-
 def read_mp3(fp):
 
     # Пример тестовых байтов (ID3v2.2 без флагов)
@@ -47,7 +46,6 @@ def read_mp3(fp):
             print(frame_size)
             print('flags ', flags)
             frames = None
-
 
             if flags["Extended header"]: #v3, v4
                 f.seek(10)
