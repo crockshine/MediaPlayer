@@ -1,4 +1,5 @@
 from .get_syncsafe_size import get_syncsafe_size
+from utils.mp3.handle_frames_with_unsync import handle_frames_with_unsync
 
 
 def get_frames_from_id3v2(fb):
@@ -22,12 +23,14 @@ def get_frames_from_id3v2(fb):
         # расширеный заголвоок далее определяется по 4 байтам после основного заголовка
     }
     frame_size = get_syncsafe_size(tag_head_bytes[6:10])
+    print(tag_head_bytes[6:10])
+
     frames = None
 
     # проверка на расширеный заголовок. 3 версия - bigint, 4 - syncsafe
     fb.seek(10)
     extended_bytes = fb.read(4)
-    if not is_frame_id(extended_bytes): #наткнулись на расширенный заголовок
+    if not is_frame_id(extended_bytes):  # наткнулись на расширенный заголовок
         flags["Extended header"] = True
         extended_size = 0
 
@@ -42,19 +45,11 @@ def get_frames_from_id3v2(fb):
         fb.seek(10)
         frames = fb.read(frame_size)
 
-    if flags["Unsync"]:
-        new_data = bytearray()
-        i = 0
-        while i < len(frames) - 1:
-            if not (frames[i] == 0x00 and frames[i + 1] == 0xFF):
-                new_data.append(frames[i])
-            i += 1
-        new_data.append(frames[-1])  # Добавляем последний байт
-        frames = bytes(new_data)
+    if flags["Unsync"] and len(frames) > 0:
+        frames = handle_frames_with_unsync(frames)
     else:
         if not flags["Extended header"]:
             fb.seek(10)
             frames = fb.read(frame_size)
 
     return [frames, version_byte]
-
