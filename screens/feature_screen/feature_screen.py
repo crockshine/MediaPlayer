@@ -1,29 +1,40 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QTransform, QPixmap
 from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 
 from components.about_track import AboutTrackLayout
 from components.feature_buttons import FeatureButtonsLayout
 from components.main_image import MainImage
+from components.timeline import Timeline
 
 
 class FeatureLayout(QVBoxLayout):
     def __init__(self, is_full_screen: bool, current_track: dict, is_playing: bool):
         super().__init__()
         ### КОМПОНЕНТЫ
+
+        # открыть / раскрыть
         top_toggle_playlist_btn = QPushButton()
         top_btn_layout = QHBoxLayout()
 
+        # главная картинка
         main_image = MainImage()
         center_info_layout = QHBoxLayout()
 
+        # текст
         about_track = AboutTrackLayout(current_track["title"], current_track["author"])
+
+        # кнопки управления
         feature_btns = FeatureButtonsLayout(is_playing)
 
+        # таймлайн
+        t = Timeline()
+        timeline = QWidget()
 
         ## РАЗМЕТКА
         top_btn_layout.addWidget(top_toggle_playlist_btn, stretch=1)
         center_info_layout.addWidget(main_image)
+        timeline.setLayout(t)
 
         self.addLayout(top_btn_layout)
         self.addStretch()
@@ -31,6 +42,7 @@ class FeatureLayout(QVBoxLayout):
         self.addLayout(center_info_layout)
         self.addLayout(about_track)
         self.addLayout(feature_btns)
+        self.addWidget(timeline)
 
         self.addStretch()
 
@@ -43,6 +55,8 @@ class FeatureLayout(QVBoxLayout):
 
         top_toggle_playlist_btn.setCursor(Qt.PointingHandCursor)
         top_toggle_playlist_btn.setStyleSheet('background-color: transparent;')
+
+        timeline.setStyleSheet('background-color: transparent;')
 
         self.setSpacing(15)
         self.setAlignment(Qt.AlignCenter)

@@ -1,4 +1,5 @@
 def is_id3v2(fp):
+
     fp.seek(0, 0)
     tag_data = fp.read(3)
     print(tag_data)

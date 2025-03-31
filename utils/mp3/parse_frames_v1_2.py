@@ -1,29 +1,31 @@
 from utils.mp3.decoding_info import decoding_info
 
 
-def parse_frames_v1_2(frames):
-    title_index = frames.find(b"TT2")
-    author_index = frames.find(b"TP1")
+def parse_frames_v1_2(frames: bytes, frame_id: bytes) -> None | str:
+    """
+    :param frames: все фреймы
+    :param frame_id: ID необходимого фрейма
+    :return: поиск и полученние информации из конкретного фрейма по его ID или None
+    """
+    frame_index = frames.find(frame_id)
+    header = frames[frame_index : frame_index + 6]
 
-    title = None
-    author = None
+    payload = None
 
-    if title_index != -1:
-        title_size = int.from_bytes(frames[title_index + 3: title_index + 6], 'big')
-        title_bytes = frames[
-                      title_index + 6:
-                      title_index + 6 + title_size
-                      ]
+    if frame_index != -1:
+        # есть место для заголовка
+        if len(frames) < frame_index + 6:
+            return None
 
-        title = decoding_info(title_bytes)
+        size = int.from_bytes(header[3 : 6], 'big')
+        START_FRAME_DATA = frame_index + 6
 
-    if author_index != -1:
-        author_size = int.from_bytes(frames[author_index + 3: author_index + 6], 'big')
-        author_bytes = frames[
-                       author_index + 6:
-                       author_index + 6 + author_size
-                       ]
+        # есть ли место для данных
+        if len(frames) < START_FRAME_DATA + size:
+            return None
 
-        author = decoding_info(author_bytes)
+        if size >= 1:
+            payload_bytes = frames[START_FRAME_DATA : START_FRAME_DATA + size]
+            payload = decoding_info(payload_bytes)
 
-    return [title, author]
+    return payload

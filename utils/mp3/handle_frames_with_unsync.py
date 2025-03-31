@@ -1,13 +1,15 @@
-def handle_frames_with_unsync(frames):
-    new_data = bytearray()
+def handle_frames_with_unsync(uncleaned_frames: bytes, clear_size: int) -> bytes:
+    clear_frames = bytearray()
 
-    if len(frames) > 0:
-        i = 0
-        while i < len(frames) - 1:
-            if not (frames[i] == 0x00 and frames[i + 1] == 0xFF):
-                new_data.append(frames[i])
+    i = 0
+    while len(clear_frames) < clear_size and i < len(uncleaned_frames):
+        if i + 1 < len(uncleaned_frames) and uncleaned_frames[i] == 0xFF and uncleaned_frames[i + 1] == 0x00:
+            clear_frames.append(uncleaned_frames[i])
+            i += 2
+        else:
+            clear_frames.append(uncleaned_frames[i])
             i += 1
-        new_data.append(frames[-1])
-    print(new_data, 'dasdasdasdasdasd')
 
-    return new_data
+    return bytes(clear_frames)
+
+

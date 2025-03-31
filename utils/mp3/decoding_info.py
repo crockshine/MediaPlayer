@@ -6,28 +6,35 @@ def decoding_info(info_bytes: bytes):
     text_bytes = info_bytes[1:]
 
     try:
-        if encoding == 0x00:
-            decoded_text = text_bytes.split(b'\x00', 1)[0].decode('latin-1')
-            return decoded_text if len(decoded_text) > 0 else None
+        if encoding == 0x00: #latin-1
+            end = text_bytes.find(b'\x00')
+            if end == -1: end = len(text_bytes)
+            return text_bytes[:end].decode('latin-1')
 
-        elif encoding == 0x01:
-            if len(text_bytes) % 2 != 0:
-                return None
-            decoded_text = text_bytes.split(b'\x00\x00', 1)[0].decode('utf-16')
-            return decoded_text if len(decoded_text) > 0 else None
+        elif encoding == 0x01: #utf-16
+            if len(text_bytes) < 2 or len(text_bytes) % 2 != 0:  return None
 
-        elif encoding == 0x02:
-            if len(text_bytes) % 2 != 0:
-                return None
-            decoded_text = text_bytes.split(b'\x00\x00', 1)[0].decode('utf-16-be')
-            return decoded_text if len(decoded_text) > 0 else None
+            end = text_bytes.find(b'\x00\x00')
+            if end == -1: end = len(text_bytes)
 
-        elif encoding == 0x03:
-            decoded_text = text_bytes.split(b'\x00', 1)[0].decode('utf-8')
-            return decoded_text if len(decoded_text) > 0 else None
+            if text_bytes[:2] == b'\xFF\xFE':
+                return text_bytes[2:end].decode('utf-16-le')
+            elif text_bytes[:2] == b'\xFE\xFF':
+                return text_bytes[:end].decode('utf-16-be')
+            else:
+                return text_bytes[:end].decode('utf-16-be')
+
+        elif encoding == 0x03: #utf-8
+            end = text_bytes.find(b'\x00')
+            if end == -1: end = len(text_bytes)
+            return text_bytes[:end].decode('utf-8')
 
         else:
-            decoded_text = text_bytes.decode('latin-1')
-            return decoded_text if len(decoded_text) > 0 else None
+            end = text_bytes.find(b'\x00')
+            if end == -1: end = len(text_bytes)
+            return text_bytes[:end].decode('latin-1')
+
     except UnicodeDecodeError:
-        return None #обработка ошибок
+        return None
+
+
