@@ -1,9 +1,12 @@
-from random import random, randint
+from random import randint
 
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QFileDialog
 from PySide6.QtCore import Qt, Signal
 import os
-from utils import read_mp3
+import mutagen
+from mutagen import FileType, MutagenError
+
+from widgets.utils import get_audio_metadata
 
 
 def get_substring_before_last_dot(fp):
@@ -12,11 +15,6 @@ def get_substring_before_last_dot(fp):
     if last_dot_index != -1:
         return file_name[:last_dot_index]
     return file_name
-
-def validation_data(data, field_type, default):
-    return data[str(field_type)] \
-        if data[str(field_type)] is not None and len(data[str(field_type)]) > 0\
-        else default
 
 class AddTrackBlock(QHBoxLayout):
     emitAddNewTrack = Signal(dict)
@@ -31,7 +29,12 @@ class AddTrackBlock(QHBoxLayout):
         ##  СТИЛИ
         self.setAlignment(button, Qt.AlignCenter)  # Выравнивание кнопки по центру
         button.setStyleSheet(
-            'background-color: black; border-radius: 10px; color: white; font-size: 16px; font-weight: bold')
+            'background-color: black; '
+            'border-radius: 10px; '
+            'color: white; '
+            'font-size: 16px; '
+            'font-weight: bold'
+        )
         button.setFixedSize(200, 50)
 
         ## ЛОГИКА
@@ -43,19 +46,15 @@ class AddTrackBlock(QHBoxLayout):
         )
         _, file_extension = os.path.splitext(file_path)
         if file_path:
-
             default_title = get_substring_before_last_dot(file_path)
-
+            print(file_path)
             # TODO сделать проверку сигнатуры , а не по формату
+            [artist, title] = get_audio_metadata(file_path, 'Неизвестен', fallback_title = default_title)
 
-            if file_extension == '.mp3':
-                mp3_track_data = read_mp3(file_path)
-                rand = randint(1, 129929)
-                new_track = {
-                    "id": rand,
-                    "title": validation_data(mp3_track_data, "title", default_title),
-                    "author": validation_data(mp3_track_data, "author", 'Автор не найден'),
-                    "source": file_path
-                }
-
-                self.emitAddNewTrack.emit(new_track)
+            new_track = {
+                        "id": randint(1, 129929),
+                        "title": title,
+                        "author": artist,
+                        "source": file_path
+            }
+            self.emitAddNewTrack.emit(new_track)
