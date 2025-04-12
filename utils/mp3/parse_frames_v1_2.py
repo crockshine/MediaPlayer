@@ -8,14 +8,12 @@ def parse_frames_v1_2(frames: bytes, frame_id: bytes) -> None | str:
     :return: поиск и полученние информации из конкретного фрейма по его ID или None
     """
     frame_index = frames.find(frame_id)
-    header = frames[frame_index : frame_index + 6]
-
     payload = None
 
     if frame_index != -1:
         # есть место для заголовка
-        if len(frames) < frame_index + 6:
-            return None
+        if len(frames) < frame_index + 6: return None
+        header = frames[frame_index: frame_index + 6]
 
         size = int.from_bytes(header[3 : 6], 'big')
         START_FRAME_DATA = frame_index + 6

@@ -1,5 +1,5 @@
 from .get_syncsafe_size import get_syncsafe_size
-from utils.mp3.handle_frames_with_unsync import handle_frames_with_unsync
+from utils.mp3.handle_unsync import handle_unsync
 
 
 def get_frames_from_id3v2(fb) -> [None | bytes, int]:
@@ -15,25 +15,36 @@ def get_frames_from_id3v2(fb) -> [None | bytes, int]:
         return [None, -1]
 
     version_byte = tag_head_bytes[3]
+    revision = tag_head_bytes[4]
 
     flag_byte = tag_head_bytes[5]
     unsync = flag_byte & 0b10000000 != 0
 
+    # При ревизии может быть непредсказуемый результат
+    if revision != 0 : return [None, -1]
+
     # Проверка на компресcию во 2 версии
     # Проверка на лишние флаги
-    if version_byte == 2 and flag_byte & 0b01000000 != 0 or flag_byte & 0b00011111 != 0:
+    if version_byte == 2 and flag_byte & 0b01000000 != 0 or flag_byte & 0b00111111 != 0:
         return [None, version_byte]
 
+    if version_byte == 3 and flag_byte & 0b00011111 != 0:
+        return [None, version_byte]
+
+    if version_byte == 4 and flag_byte & 0b00001111 != 0:
+        return [None, version_byte]
+
+
     frame_size = get_syncsafe_size(tag_head_bytes[6:10])
-    frames: None | bytes = None
     fb.seek(10, 0)
-    print('frames', frames)
 
     if unsync:
         print('опа ансинк')
-        frames = handle_frames_with_unsync(fb.read(), frame_size)
+        frames = handle_unsync(fb.read(), frame_size)
     else:
         print('нету ансинк')
         frames = fb.read(frame_size)
+        if len(frames) < frame_size :
+            return [None, version_byte]
 
     return [frames, version_byte]

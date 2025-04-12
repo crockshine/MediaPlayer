@@ -2,7 +2,7 @@ import zlib
 
 from utils.mp3 import get_syncsafe_size
 from utils.mp3.decoding_info import decoding_info
-from utils.mp3.handle_frames_with_unsync import handle_frames_with_unsync
+from utils.mp3.handle_unsync import handle_frames_with_unsync
 
 
 def handle_frame_with_flags(frame_data, flags):
@@ -26,17 +26,21 @@ def handle_frame_with_flags(frame_data, flags):
     return frame_data
 
 
-def parse_frames_v4(frames):
-    title_index = frames.find(b"TIT2")
-    author_index = frames.find(b"TPE1")
+def parse_frames_v4(frames: bytes, frame_id: bytes) -> None | str:
+    """
+           :param frames: все фреймы
+           :param frame_id: ID необходимого фрейма
+           :return: поиск и полученние информации из конкретного фрейма по его ID или None
+    """
 
-    title = None
-    author = None
+    frame_index = frames.find(frame_id)
+    header = frames[frame_index: frame_index + 10]
+    print('header frame v4', header)
 
-    print(frames)
+    payload = None
 
-    if author_index != -1:
-        author_size = get_syncsafe_size(frames[author_index + 4: author_index + 8])
+    if frame_index != -1:
+        size = get_syncsafe_size(frames[frame_index + 4: frame_index + 8])
         print('автор размер ', author_size)
         author_bytes = frames[
                        author_index + 10:
